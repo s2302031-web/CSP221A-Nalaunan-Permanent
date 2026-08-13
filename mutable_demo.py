@@ -33,3 +33,4 @@ if __name__ == "__main__":
     f1.add_log("Task 1 completed by f1")
     print("f1 logs:", f1.logs)
     print("f2 logs (properly isolated):", f2.logs)
+# Temporary debug comment
