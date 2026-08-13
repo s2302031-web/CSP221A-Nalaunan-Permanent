@@ -57,7 +57,8 @@ class Robot(abc.ABC):
         """Abstract method to be implemented by all concrete subclasses."""
         pass
 
-        def log_action(func):
+
+def log_action(func):
     """Decorator that logs method execution details while preserving metadata."""
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -79,13 +80,7 @@ class CleaningRobot(Robot):
         self.use_battery(battery_cost)
         return f"{self.name} cleaned {area_sqft} sq ft of space."
 
-
-def fleet_report(robots: list):
-    """Prints a status line for each robot using dynamic polymorphism."""
-    for robot in robots:
-        print(str(robot))
-
-        class DroneRobot(Robot):
+class DroneRobot(Robot):
     def __init__(self, name: str, battery: int = 100, max_altitude: int = 120):
         super().__init__(name, battery)
         self.max_altitude = max_altitude
@@ -97,7 +92,14 @@ def fleet_report(robots: list):
         self.use_battery(battery_cost)
         return f"{self.name} surveyed terrain at {altitude}m altitude."
 
-        def run_task_safely(robot: Robot, **kwargs):
+
+def fleet_report(robots: list):
+    """Prints a status line for each robot using dynamic polymorphism."""
+    for robot in robots:
+        print(str(robot))
+
+
+def run_task_safely(robot: Robot, **kwargs):
     """Executes a task inside a complete try/except/else/finally block."""
     try:
         result = robot.perform_task(**kwargs)
