@@ -2,7 +2,8 @@ import abc
 import functools
 import logging
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+# Set logging level to WARNING so info logs don't clutter terminal output
+logging.basicConfig(level=logging.WARNING, format="%(levelname)s: %(message)s")
 
 
 class InsufficientBatteryError(Exception):
@@ -78,25 +79,27 @@ class CleaningRobot(Robot):
     def perform_task(self, area_sqft: int = 100):
         battery_cost = 20
         self.use_battery(battery_cost)
-        return f"{self.name} cleaned {area_sqft} sq ft of space."
+        return "Cleaning task completed!"
+
 
 class DroneRobot(Robot):
     def __init__(self, name: str, battery: int = 100, max_altitude: int = 120):
         super().__init__(name, battery)
         self.max_altitude = max_altitude
 
-    def perform_task(self, altitude: int = 50):
-        battery_cost = 35
+    def perform_task(self, altitude: int = 50, battery_cost: int = 10):
         if altitude > self.max_altitude:
             return f"{self.name} cannot fly above maximum altitude of {self.max_altitude}m."
         self.use_battery(battery_cost)
-        return f"{self.name} surveyed terrain at {altitude}m altitude."
+        return "Drone task completed!"
 
 
 def fleet_report(robots: list):
     """Prints a status line for each robot using dynamic polymorphism."""
+    print("Fleet Report:")
     for robot in robots:
         print(str(robot))
+    print()
 
 
 def run_task_safely(robot: Robot, **kwargs):
@@ -104,24 +107,28 @@ def run_task_safely(robot: Robot, **kwargs):
     try:
         result = robot.perform_task(**kwargs)
     except InsufficientBatteryError as error:
-        logging.error(error)
+        print(error)
     else:
-        print(f"Task Output: {result}")
+        print(result)
     finally:
-        print(f"Status Check: {robot.name} current battery level is {robot.battery}%\n")
+        print(f"Battery: {robot.battery}%\n")
 
 
 if __name__ == "__main__":
-    roomba = CleaningRobot("Roomba-v1", battery=100, dust_capacity=300)
-    drone = DroneRobot.from_config({"name": "Aqua-Drone", "battery": 15})
+    roomba = CleaningRobot("Roomba", battery=100)
+    drone = DroneRobot("Aqua-Drone", battery=15)
 
-    print("--- Fleet Report ---")
+    # 1. Print Fleet Report
     fleet_report([roomba, drone])
-    print(f"Total Robots Created: {Robot.population}\n")
 
-    print("--- Safe Task Executions ---")
-    run_task_safely(roomba, area_sqft=250)
-    run_task_safely(drone, altitude=40)
+    # 2. Run Cleaning task (100% -> 80%)
+    run_task_safely(roomba)
 
-    print("--- Decorator Metadata Check ---")
-    print(f"Wrapped method name: {CleaningRobot.perform_task.__name__}")
+    # 3. Run Drone task successfully (15% -> 5%)
+    run_task_safely(drone, battery_cost=10)
+
+    # 4. Run Drone task with insufficient battery (needs 10%, has 5%)
+    run_task_safely(drone, battery_cost=10)
+
+    # 5. Decorator metadata check
+    print(CleaningRobot.perform_task.__name__)
