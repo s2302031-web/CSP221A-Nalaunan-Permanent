@@ -96,3 +96,30 @@ def fleet_report(robots: list):
             return f"{self.name} cannot fly above maximum altitude of {self.max_altitude}m."
         self.use_battery(battery_cost)
         return f"{self.name} surveyed terrain at {altitude}m altitude."
+
+        def run_task_safely(robot: Robot, **kwargs):
+    """Executes a task inside a complete try/except/else/finally block."""
+    try:
+        result = robot.perform_task(**kwargs)
+    except InsufficientBatteryError as error:
+        logging.error(error)
+    else:
+        print(f"Task Output: {result}")
+    finally:
+        print(f"Status Check: {robot.name} current battery level is {robot.battery}%\n")
+
+
+if __name__ == "__main__":
+    roomba = CleaningRobot("Roomba-v1", battery=100, dust_capacity=300)
+    drone = DroneRobot.from_config({"name": "Aqua-Drone", "battery": 15})
+
+    print("--- Fleet Report ---")
+    fleet_report([roomba, drone])
+    print(f"Total Robots Created: {Robot.population}\n")
+
+    print("--- Safe Task Executions ---")
+    run_task_safely(roomba, area_sqft=250)
+    run_task_safely(drone, altitude=40)
+
+    print("--- Decorator Metadata Check ---")
+    print(f"Wrapped method name: {CleaningRobot.perform_task.__name__}")
