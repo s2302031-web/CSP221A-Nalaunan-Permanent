@@ -56,3 +56,31 @@ class Robot(abc.ABC):
     def perform_task(self, **kwargs):
         """Abstract method to be implemented by all concrete subclasses."""
         pass
+
+        def log_action(func):
+    """Decorator that logs method execution details while preserving metadata."""
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        logging.info(f"Starting {func.__name__} on {self.name}")
+        result = func(self, *args, **kwargs)
+        logging.info(f"Finished {func.__name__} on {self.name}")
+        return result
+    return wrapper
+
+
+class CleaningRobot(Robot):
+    def __init__(self, name: str, battery: int = 100, dust_capacity: int = 500):
+        super().__init__(name, battery)
+        self.dust_capacity = dust_capacity
+
+    @log_action
+    def perform_task(self, area_sqft: int = 100):
+        battery_cost = 20
+        self.use_battery(battery_cost)
+        return f"{self.name} cleaned {area_sqft} sq ft of space."
+
+
+def fleet_report(robots: list):
+    """Prints a status line for each robot using dynamic polymorphism."""
+    for robot in robots:
+        print(str(robot))
