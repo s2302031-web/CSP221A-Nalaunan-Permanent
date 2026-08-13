@@ -84,3 +84,15 @@ def fleet_report(robots: list):
     """Prints a status line for each robot using dynamic polymorphism."""
     for robot in robots:
         print(str(robot))
+
+        class DroneRobot(Robot):
+    def __init__(self, name: str, battery: int = 100, max_altitude: int = 120):
+        super().__init__(name, battery)
+        self.max_altitude = max_altitude
+
+    def perform_task(self, altitude: int = 50):
+        battery_cost = 35
+        if altitude > self.max_altitude:
+            return f"{self.name} cannot fly above maximum altitude of {self.max_altitude}m."
+        self.use_battery(battery_cost)
+        return f"{self.name} surveyed terrain at {altitude}m altitude."
